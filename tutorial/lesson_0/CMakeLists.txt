@@ -1,13 +1,15 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../../cmake")
 
+message("The cmake path is: " ${CMAKE_MODULE_PATH})
+
 project(GPU_Computing_in_Robotics_tutorial_lesson_0)
 
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(PCL 1.5 REQUIRED)
 find_package(CUDA 7.5 REQUIRED)
-find_package(CUDADevice 3.0 REQUIRED)
+find_package(CUDADevice 8.9 REQUIRED)
 
 set_directory_properties( PROPERTIES COMPILE_DEFINITIONS "" )
 

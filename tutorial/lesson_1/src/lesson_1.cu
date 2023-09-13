@@ -19,24 +19,27 @@ cudaError_t cudaCalculateGridParams(pcl::PointXYZ* d_point_cloud, int number_of_
 		thrust::device_ptr<pcl::PointXYZ> t_cloud(d_point_cloud);
 		err = cudaGetLastError();
 		if(err != ::cudaSuccess)return err;
-	
+
+        // Get the min and max value on the x-axis of point cloud .
 		thrust::pair<thrust::device_ptr<pcl::PointXYZ>,thrust::device_ptr<pcl::PointXYZ> >
 		 minmaxX=thrust::minmax_element(t_cloud,t_cloud+number_of_points,compareX());
 		err = cudaGetLastError();
 		if(err != ::cudaSuccess)return err;
-	
+
+        // Get the min and max value on the y-axis of the point cloud.
 		thrust::pair<thrust::device_ptr<pcl::PointXYZ>,thrust::device_ptr<pcl::PointXYZ> >
 		 minmaxY=thrust::minmax_element(t_cloud,t_cloud+number_of_points,compareY());
 		err = cudaGetLastError();
 		if(err != ::cudaSuccess)return err;
-	
+
+        // Get the min and max value on the z-axis of the point cloud.
 		thrust::pair<thrust::device_ptr<pcl::PointXYZ>,thrust::device_ptr<pcl::PointXYZ> >
 		 minmaxZ=thrust::minmax_element(t_cloud,t_cloud+number_of_points,compareZ());
 		err = cudaGetLastError();
 		if(err != ::cudaSuccess)return err;
 		
 		pcl::PointXYZ minX,maxX,minZ,maxZ,minY,maxY;
-
+        // Copy the min/max value of each-axis from the GPU to the CPU.
 		err = cudaMemcpy(&minX,minmaxX.first.get(),sizeof(pcl::PointXYZ),cudaMemcpyDeviceToHost);
 		if(err != ::cudaSuccess)return err;
 		err = cudaMemcpy(&maxX,minmaxX.second.get(),sizeof(pcl::PointXYZ),cudaMemcpyDeviceToHost);
@@ -49,7 +52,8 @@ cudaError_t cudaCalculateGridParams(pcl::PointXYZ* d_point_cloud, int number_of_
 		if(err != ::cudaSuccess)return err;
 		err = cudaMemcpy(&maxY,minmaxY.second.get(),sizeof(pcl::PointXYZ),cudaMemcpyDeviceToHost);
 		if(err != ::cudaSuccess)return err;
-	
+
+        // Get the num of buckets on each axis.
 		int number_of_buckets_X=((maxX.x-minX.x)/resolution_X)+1;
 		int number_of_buckets_Y=((maxY.y-minY.y)/resolution_Y)+1;
 		int number_of_buckets_Z=((maxZ.z-minZ.z)/resolution_Z)+1;
@@ -181,6 +185,7 @@ cudaError_t cudaCalculateGrid(int threads, pcl::PointXYZ* d_point_cloud, bucket 
 		hashElement *d_hashTable, int number_of_points, gridParameters rgd_params)
 {
 	cudaError_t err = cudaGetLastError();
+    // Allocate the hash table elements of the point cloud on the GPU device.
 	hashElement* d_temp_hashTable;	cudaMalloc((void**)&d_temp_hashTable,number_of_points*sizeof(hashElement));
 	int blocks=number_of_points/threads + 1;
 

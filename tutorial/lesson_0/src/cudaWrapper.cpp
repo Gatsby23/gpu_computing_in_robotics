@@ -15,15 +15,16 @@ void CCudaWrapper::warmUpGPU()
 {
 	cudaError_t err = ::cudaSuccess;
 	err = cudaSetDevice(0);
-		if(err != ::cudaSuccess)return;
+    if(err != ::cudaSuccess)return;
 
 	err = cudaWarmUpGPU();
-		if(err != ::cudaSuccess)return;
+    if(err != ::cudaSuccess)return;
 
 }
 
 int CCudaWrapper::getNumberOfAvailableThreads()
 {
+    // The property of the CUDA device.
 	cudaDeviceProp prop;
 	cudaGetDeviceProperties(&prop,0);
 
@@ -38,7 +39,6 @@ int CCudaWrapper::getNumberOfAvailableThreads()
 	{
 		return 0;
 	}
-
 	return threads;
 }
 
@@ -158,21 +158,26 @@ bool CCudaWrapper::removePointsInsideSphere(pcl::PointCloud<pcl::PointXYZ> &poin
 
 	return true;
 }
-
+// CUDA上的Transform函数.
 bool CCudaWrapper::transform(pcl::PointCloud<pcl::PointXYZ> &point_cloud, Eigen::Affine3f matrix)
 {
+    // 某一个线程上.
 	int threads;
 	pcl::PointXYZ * d_point_cloud;
-
+    // The matrix on the host[CPU上] device.
 	float h_m[16];
+    // The matrix on the GPU device.
 	float *d_m;
 
 	cudaError_t err = ::cudaSuccess;
+    // Use the GPU device 0->The first GPU.
 	err = cudaSetDevice(0);
-		if(err != ::cudaSuccess)return false;
+    if(err != ::cudaSuccess)return false;
 
+    // Get how many threads available now.
 	threads = getNumberOfAvailableThreads();
 
+    // Transform the Eigen matrix into the double array and assign values row by row.
 	h_m[0] = matrix.matrix()(0,0);
 	h_m[1] = matrix.matrix()(1,0);
 	h_m[2] = matrix.matrix()(2,0);
@@ -193,20 +198,26 @@ bool CCudaWrapper::transform(pcl::PointCloud<pcl::PointXYZ> &point_cloud, Eigen:
 	h_m[14] = matrix.matrix()(2,3);
 	h_m[15] = matrix.matrix()(3,3);
 
+    // Create the memory place on the GPU device.
 	err = cudaMalloc((void**)&d_m, 16*sizeof(float) );
-		if(err != ::cudaSuccess)return false;
+    // Test it created it or not?
+    if(err != ::cudaSuccess)return false;
 
+    // Copy the value from the CPU to the GPU.
 	err = cudaMemcpy(d_m, h_m, 16*sizeof(float), cudaMemcpyHostToDevice);
-		if(err != ::cudaSuccess)return false;
+    if(err != ::cudaSuccess)return false;
 
+    // Create the memory place for the point cloud on the GPU.
 	err = cudaMalloc((void**)&d_point_cloud, point_cloud.points.size()*sizeof(pcl::PointXYZ) );
-			if(err != ::cudaSuccess)return false;
+    if(err != ::cudaSuccess)return false;
 
+    // Copy the point cloud data from the CPU to the GPU.
 	err = cudaMemcpy(d_point_cloud, point_cloud.points.data(), point_cloud.points.size()*sizeof(pcl::PointXYZ), cudaMemcpyHostToDevice);
-		if(err != ::cudaSuccess)return false;
+    if(err != ::cudaSuccess)return false;
 
+    // Do the transforms.
 	err = cudaTransformPoints(threads, d_point_cloud, point_cloud.points.size(), d_m);
-		if(err != ::cudaSuccess)return false;
+    if(err != ::cudaSuccess)return false;
 
 	err = cudaMemcpy(point_cloud.points.data(), d_point_cloud, point_cloud.points.size()*sizeof(pcl::PointXYZ), cudaMemcpyDeviceToHost);
 		if(err != ::cudaSuccess)return false;

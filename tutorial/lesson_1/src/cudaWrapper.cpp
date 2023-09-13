@@ -72,8 +72,8 @@ bool CCudaWrapper::downsampling(pcl::PointCloud<pcl::PointXYZ> &point_cloud, flo
 {
 	cudaError_t err = ::cudaSuccess;
 	err = cudaSetDevice(0);
-		if(err != ::cudaSuccess)return false;
-
+    if(err != ::cudaSuccess)return false;
+    // The parameters used for the downsampling.
 	gridParameters rgd_params;
 	pcl::PointXYZ * d_point_cloud;
 	hashElement* d_hashTable = NULL;
@@ -85,37 +85,37 @@ bool CCudaWrapper::downsampling(pcl::PointCloud<pcl::PointXYZ> &point_cloud, flo
 	std::cout << "CUDA code will use " << threads << " device threads" << std::endl;
 	if(threads == 0)return false;
 
-
+    // Allocate the memory on the GPU device.
 	err = cudaMalloc((void**)&d_point_cloud, point_cloud.points.size()*sizeof(pcl::PointXYZ) );
-		if(err != ::cudaSuccess)return false;
-
+    if(err != ::cudaSuccess)return false;
+    // Copy the point data from the CPU to the GPU.
 	err = cudaMemcpy(d_point_cloud, point_cloud.points.data(), point_cloud.points.size()*sizeof(pcl::PointXYZ), cudaMemcpyHostToDevice);
-		if(err != ::cudaSuccess)return false;
+    if(err != ::cudaSuccess)return false;
 
+    // Get the corresponding parameters.
 	err = cudaCalculateGridParams(d_point_cloud, point_cloud.points.size(),
 			resolution, resolution, resolution, rgd_params);
-		if(err != ::cudaSuccess)return false;
+    if(err != ::cudaSuccess)return false;
 
-		std::cout << "regular grid parameters:" << std::endl;
-		std::cout << "bounding_box_min_X: " << rgd_params.bounding_box_min_X << std::endl;
-		std::cout << "bounding_box_min_Y: " << rgd_params.bounding_box_min_Y << std::endl;
-		std::cout << "bounding_box_min_Z: " << rgd_params.bounding_box_min_Z << std::endl;
-		std::cout << "bounding_box_max_X: " << rgd_params.bounding_box_max_X << std::endl;
-		std::cout << "bounding_box_max_Y: " << rgd_params.bounding_box_max_Y << std::endl;
-		std::cout << "bounding_box_max_Z: " << rgd_params.bounding_box_max_Z << std::endl;
-		std::cout << "number_of_buckets_X: " << rgd_params.number_of_buckets_X << std::endl;
-		std::cout << "number_of_buckets_Y: " << rgd_params.number_of_buckets_Y << std::endl;
-		std::cout << "number_of_buckets_Z: " << rgd_params.number_of_buckets_Z << std::endl;
-		std::cout << "resolution_X: " << rgd_params.resolution_X << std::endl;
-		std::cout << "resolution_Y: " << rgd_params.resolution_Y << std::endl;
-		std::cout << "resolution_Z: " << rgd_params.resolution_Z << std::endl;
-
+    std::cout << "regular grid parameters:" << std::endl;
+    std::cout << "bounding_box_min_X: " << rgd_params.bounding_box_min_X << std::endl;
+    std::cout << "bounding_box_min_Y: " << rgd_params.bounding_box_min_Y << std::endl;
+    std::cout << "bounding_box_min_Z: " << rgd_params.bounding_box_min_Z << std::endl;
+    std::cout << "bounding_box_max_X: " << rgd_params.bounding_box_max_X << std::endl;
+    std::cout << "bounding_box_max_Y: " << rgd_params.bounding_box_max_Y << std::endl;
+    std::cout << "bounding_box_max_Z: " << rgd_params.bounding_box_max_Z << std::endl;
+    std::cout << "number_of_buckets_X: " << rgd_params.number_of_buckets_X << std::endl;
+    std::cout << "number_of_buckets_Y: " << rgd_params.number_of_buckets_Y << std::endl;
+    std::cout << "number_of_buckets_Z: " << rgd_params.number_of_buckets_Z << std::endl;
+    std::cout << "resolution_X: " << rgd_params.resolution_X << std::endl;
+    std::cout << "resolution_Y: " << rgd_params.resolution_Y << std::endl;
+    std::cout << "resolution_Z: " << rgd_params.resolution_Z << std::endl;
+    // Allocate the memory on the GPU device.
 	err = cudaMalloc((void**)&d_hashTable,point_cloud.points.size()*sizeof(hashElement));
 			if(err != ::cudaSuccess)return false;
-
 	err = cudaMalloc((void**)&d_buckets, rgd_params.number_of_buckets*sizeof(bucket));
 			if(err != ::cudaSuccess)return false;
-
+    // Calculate the grid of the point cloud.
 	err = cudaCalculateGrid(threads, d_point_cloud, d_buckets, d_hashTable, point_cloud.points.size(), rgd_params);
 			if(err != ::cudaSuccess)return false;
 

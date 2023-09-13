@@ -1,0 +1,6 @@
+# ninja log v5
+0	13391	1694503759664763013	CMakeFiles/lesson_1.dir/src/lesson_1_generated_lesson_1.cu.o	c13d2ef9a08b76c1
+0	13391	1694503759664763013	/home/robotics/Lab_Study/CUDA_Study/gpu_computing_in_robotics/tutorial/lesson_1/cmake-build-debug/CMakeFiles/lesson_1.dir/src/lesson_1_generated_lesson_1.cu.o	c13d2ef9a08b76c1
+13393	14679	1694503760956789087	CMakeFiles/lesson_1.dir/src/cudaWrapper.cpp.o	f13e236770809dd6
+13393	15062	1694503761336796756	CMakeFiles/lesson_1.dir/src/lesson_1_main.cpp.o	62ef01bdc8c48819
+15062	15256	1694503761528800631	lesson_1	8cae3d45539902c7

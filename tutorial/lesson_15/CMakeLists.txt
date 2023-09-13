@@ -7,7 +7,7 @@ find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 find_package(PCL 1.5 REQUIRED)
 find_package(CUDA 7.5 REQUIRED)
-find_package(CUDADevice 3.0 REQUIRED)
+find_package(CUDADevice 8.9 REQUIRED)
 
 message("cuda include dir: ${CUDA_INCLUDE_DIRS}") 
 message("cuda libraries: ${CUDA_LIBRARIES}") 

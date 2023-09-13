@@ -155,7 +155,6 @@ main(int argc, char **argv)
 	glutMotionFunc(motion);
     glutReshapeFunc(reshape);
 	glutMainLoop();
-
 }
 
 bool initGL(int *argc, char **argv)
@@ -372,7 +371,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/)
 			double computation_time;
 			begin_time = clock();
 
-        		register_obs1_to_obs2();
+            register_obs1_to_obs2();
 
 			computation_time=(double)( clock () - begin_time ) /  CLOCKS_PER_SEC;
 			std::cout << "cudaWrapper.registerLS3D computation_time: " << computation_time << std::endl;

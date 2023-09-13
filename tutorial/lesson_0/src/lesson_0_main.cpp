@@ -19,8 +19,8 @@
 
 #include "cudaWrapper.h"
 
-const unsigned int window_width  = 512;
-const unsigned int window_height = 512;
+const unsigned int window_width  = 3840;
+const unsigned int window_height = 2160;
 int mouse_old_x, mouse_old_y;
 int mouse_buttons = 0;
 float rotate_x = 0.0, rotate_y = 0.0;
@@ -92,23 +92,32 @@ int main(int argc, char **argv)
 bool initGL(int *argc, char **argv)
 {
     glutInit(argc, argv);
+    // OpenGL会调用前面声明的display函数.
     glutDisplayFunc(display);
+    // 支持彩色显示，并且整个窗口是一个双缓冲模式.
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
+    // 初始化窗口大小.
     glutInitWindowSize(window_width, window_height);
+    // 创建窗口，并且命名为：Lesson 0 - basic transformations.
     glutCreateWindow("Lesson 0 - basic transformations");
     glutDisplayFunc(display);
+    // 接收键盘回调函数.
     glutKeyboardFunc(keyboard);
+    // 通过motion函数来应用于鼠标操作.
     glutMotionFunc(motion);
+    // 通过reshape函数来调整窗口大小.
     glutReshapeFunc(reshape);
+    // 背景色是黑色.
     glClearColor(0.0, 0.0, 0.0, 1.0);
+    // 取消深度测试.
     glDisable(GL_DEPTH_TEST);
-
+    // 视角观察.
     glViewport(0, 0, window_width, window_height);
-
+    // 投影矩阵模式.
     glMatrixMode(GL_PROJECTION);
+    // 将当前矩阵变为单位阵.
     glLoadIdentity();
     gluPerspective(60.0, (GLfloat)window_width / (GLfloat) window_height, 0.01, 10000.0);
-
     return true;
 }
 
@@ -223,6 +232,7 @@ void keyboard(unsigned char key, int /*x*/, int /*y*/)
 			break;
 		}
     }
+    // Use the glut function to re-operate it.
     glutPostRedisplay();
     printHelp();
 }

@@ -24,10 +24,12 @@ cudaError_t cudaWarmUpGPU()
 
 __global__ void kernel_cudaTransformPoints(pcl::PointXYZ *d_point_cloud, int number_of_points, float *d_matrix)
 {
+    // Get the current id of the gpu threads.
 	int ind=blockIdx.x*blockDim.x+threadIdx.x;
 
 	if(ind<number_of_points)
 	{
+        // Transform all the data into the gpu array and operate it.
 		float vSrcVector[3] = {d_point_cloud[ind].x, d_point_cloud[ind].y, d_point_cloud[ind].z};
 		float vOut[3];
 		vOut[0]=d_matrix[0]*vSrcVector[0]+d_matrix[4]*vSrcVector[1]+d_matrix[8]*vSrcVector[2]+d_matrix[12];
@@ -44,7 +46,7 @@ cudaError_t cudaTransformPoints(int threads, pcl::PointXYZ *d_point_cloud, int n
 {
 	kernel_cudaTransformPoints<<<number_of_points/threads+1,threads>>>
 		(d_point_cloud, number_of_points, d_matrix);
-
+    // Sync the data and get the result.
 	cudaDeviceSynchronize();
 	return cudaGetLastError();
 }
